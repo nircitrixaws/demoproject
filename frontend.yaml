@@ -18,7 +18,6 @@ spec:
     containers:
     - image: 10.128.0.2:5000/nircitrixaws/flask:${BUILD_NUMBER}
       name: frontend
-
 ---
 apiVersion: apps/v1
 kind: Deployment
