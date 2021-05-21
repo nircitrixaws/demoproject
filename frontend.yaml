@@ -1,4 +1,4 @@
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -19,7 +19,7 @@ spec:
     - image: 10.128.0.2:5000/nircitrixaws/flask:${BUILD_NUMBER}
       name: frontend
 ---
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
