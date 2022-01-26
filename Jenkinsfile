@@ -21,20 +21,14 @@ pipeline {
       }
       stage('Build python image') {
         steps {
-          dir("${env.WORKSPACE}/flask"){
-            script {
-              dockerImage= docker.build("dockerImagename_py + ":$BUILD_NUMBER"","-f ${WORKSPACE}/flask ./Dockerfile")
-            }
-          }
+          sh 'docker build -t dockerImagename_py+":$BUILD_NUMBER"  "$WORKSPACE"/flask'
         }
       }
     stage('Push Image-py') {
       steps{
-        script {
-          docker.withRegistry( 'https://registry.hub.docker.com', DOCKERHUB_CREDENTIALS) {
-            dockerImage.push()
-          }
-        }
+        withCredentials([usernamePassword(credentialsId: 'dochub-cred', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
+          sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
+          sh 'docker push dockerImagename_py+":$BUILD_NUMBER"'
       }
     }
     stage('mysql-current-dir') {
