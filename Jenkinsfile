@@ -21,7 +21,7 @@ pipeline {
       stage('Build python image') {
         steps {
           script {
-            dockerImage = docker.build dockerImagename_py + ":$BUILD_NUMBER" "$WORKSPACE"/flask
+            dockerImage = docker.build ('$(dockerImagename_py) + ":$BUILD_NUMBER"', "$(WORKSPACE)/flask")
           }
         }
       }
