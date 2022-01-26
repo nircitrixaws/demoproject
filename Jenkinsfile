@@ -48,16 +48,18 @@ pipeline {
     }
    stage('Build mysql image') {
      steps{
-       script {
-         dockerImage = docker.build dockerImagename_mysql + ":$BUILD_NUMBER" "$WORKSPACE"/mysql
+       environment {
+         dockerImage = ""
+       }
+       dir("${env.WORKSPACE}/mysql"){
+         script {
+           dockerImage= docker.build dockerImagename_py + ":$BUILD_NUMBER"
+         }
        }
      }
    }
    stage('Push Image') {
-      steps{
-        environment {
-          dockerImage = ""
-        }
+      steps{      
         script {
           docker.withRegistry( 'https://registry.hub.docker.com', DOCKERHUB_CREDENTIALS) {
             dockerImage.push()
