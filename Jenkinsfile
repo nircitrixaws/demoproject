@@ -1,59 +1,74 @@
 pipeline {
-
   environment {
-    registry = "10.128.0.2:5000/nircitrixaws/flask"
-    registry_mysql = "10.128.0.2:5000/nircitrixaws/mysql"
+    dockerImagename_py = "nircitrixaws/demo_py"
+    dockerImagename_mysql = "nircitrixaws/demo_mysql"
     dockerImage = ""
   }
-
   agent any
     stages {
-  
-    stage('Checkout Source') {
-      steps {
-        git 'https://github.com/nircitrixaws/Docker-Project.git'
-      }
-    }
-
-    stage('Build image') {
-      steps{
-        script {
-          dockerImage = docker.build registry + ":$BUILD_NUMBER"
+      stage('Checkout Source code') {
+        steps {
+          git 'https://github.com/nircitrixaws/demoproject.git'
         }
       }
-    }
-
+      stage('python-current-dir') {
+        steps{
+          dir("${env.WORKSPACE}/flask"){
+            sh "pwd"
+          }
+        }
+      }
+      stage('Build python image') {
+        steps {
+          script {
+            dockerImage = docker.build dockerImagename_py + ":$BUILD_NUMBER" "$WORKSPACE"/flask
+          }
+        }
+      }
     stage('Push Image') {
       steps{
+        environment {
+          DOCKERHUB_CREDENTIALS=credentials('dochub-cred')
+        }
         script {
-          docker.withRegistry( "" ) {
+          docker.withRegistry( 'https://registry.hub.docker.com', DOCKERHUB_CREDENTIALS) {
             dockerImage.push()
           }
         }
       }
     }
-
-    stage('current') {
+    stage('mysql-current-dir') {
       steps{
         dir("${env.WORKSPACE}/mysql"){
           sh "pwd"
-          }
-      }
-   }
-   stage('Build mysql image') {
-     steps{
-       sh 'docker build -t "10.128.0.2:5000/nircitrixaws/mysql:$BUILD_NUMBER"  "$WORKSPACE"/mysql'
-        sh 'docker push "10.128.0.2:5000/nircitrixaws/mysql:$BUILD_NUMBER"'
-        }
-      }
-    stage('Deploy App') {
-      steps {
-        script {
-          kubernetesDeploy(configs: "frontend.yaml", kubeconfigId: "kube")
         }
       }
     }
-
+   stage('Build mysql image') {
+     steps{
+       script {
+         dockerImage = docker.build dockerImagename_mysql + ":$BUILD_NUMBER" "$WORKSPACE"/mysql
+       }
+     }
+   }
+   stage('Push Image') {
+      steps{
+        environment {
+          dockerImage = ""
+        }
+        script {
+          docker.withRegistry( 'https://registry.hub.docker.com', DOCKERHUB_CREDENTIALS) {
+            dockerImage.push()
+          }
+        }
+      }
+    }
+    stage('Deploy App') {
+      steps {
+        script {
+          kubernetesDeploy(configs: "deploy.yaml", kubeconfigId: "kube")
+        }
+      }
+    }
   }
-
 }
