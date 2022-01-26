@@ -21,8 +21,9 @@ pipeline {
       stage('Build python image') {
         steps {
           script {
-            dockerImage = docker.build ('$(dockerImagename_py) + ":$BUILD_NUMBER"', "$(WORKSPACE)/flask")
+            dockerImage-new = docker.build ("nircitrixaws/demo_py", "${WORKSPACE}/flask")
           }
+            sh 'dockerImage | docker tag dockerImage-new dockerImage-new+":$BUILD_NUMBER" '
         }
       }
     stage('Push Image') {
