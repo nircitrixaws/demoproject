@@ -23,7 +23,7 @@ pipeline {
         steps {
           dir("${env.WORKSPACE}/flask"){
             script {
-              dockerImage= docker.build dockerImagename_py + ":$BUILD_NUMBER"
+              dockerImage= docker.build("dockerImagename_py + ":$BUILD_NUMBER"","-f ${WORKSPACE}/flask ./Dockerfile")
             }
           }
         }
