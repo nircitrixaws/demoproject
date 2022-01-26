@@ -28,7 +28,7 @@ pipeline {
           }
         }
       }
-    stage('Push Image') {
+    stage('Push Image-py') {
       steps{
         script {
           docker.withRegistry( 'https://registry.hub.docker.com', DOCKERHUB_CREDENTIALS) {
@@ -53,7 +53,7 @@ pipeline {
        }
      }
    }
-   stage('Push Image') {
+   stage('Push Image-mysql') {
       steps{      
         script {
           docker.withRegistry( 'https://registry.hub.docker.com', DOCKERHUB_CREDENTIALS) {
