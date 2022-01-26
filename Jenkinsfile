@@ -3,7 +3,6 @@ pipeline {
     dockerImagename_py = "nircitrixaws/demo_py"
     dockerImagename_mysql = "nircitrixaws/demo_mysql"
     dockerImage = ""
-    dockerImage-new = ""
   }
   agent any
     stages {
