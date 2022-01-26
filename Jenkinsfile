@@ -3,6 +3,7 @@ pipeline {
     dockerImagename_py = "nircitrixaws/demo_py"
     dockerImagename_mysql = "nircitrixaws/demo_mysql"
     dockerImage = ""
+    dockerImage-new = ""
   }
   agent any
     stages {
@@ -20,10 +21,11 @@ pipeline {
       }
       stage('Build python image') {
         steps {
-          script {
-            dockerImage-new = docker.build ("nircitrixaws/demo_py", "${WORKSPACE}/flask")
+          dir("${env.WORKSPACE}/flask"){
+            script {
+              dockerImage= docker.build dockerImagename_py + ":$BUILD_NUMBER"
+            }
           }
-            sh 'dockerImage | docker tag dockerImage-new dockerImage-new+":$BUILD_NUMBER" '
         }
       }
     stage('Push Image') {
