@@ -3,6 +3,7 @@ pipeline {
     dockerImagename_py = "nircitrixaws/demo_py"
     dockerImagename_mysql = "nircitrixaws/demo_mysql"
     dockerImage = ""
+    DOCKERHUB_CREDENTIALS=credentials('dochub-cred')
   }
   agent any
     stages {
@@ -29,9 +30,6 @@ pipeline {
       }
     stage('Push Image') {
       steps{
-        environment {
-          DOCKERHUB_CREDENTIALS=credentials('dochub-cred')
-        }
         script {
           docker.withRegistry( 'https://registry.hub.docker.com', DOCKERHUB_CREDENTIALS) {
             dockerImage.push()
@@ -48,12 +46,9 @@ pipeline {
     }
    stage('Build mysql image') {
      steps{
-       environment {
-         dockerImage = ""
-       }
        dir("${env.WORKSPACE}/mysql"){
          script {
-           dockerImage= docker.build dockerImagename_py + ":$BUILD_NUMBER"
+           dockerImage1= docker.build dockerImagename_py + ":$BUILD_NUMBER"
          }
        }
      }
@@ -62,7 +57,7 @@ pipeline {
       steps{      
         script {
           docker.withRegistry( 'https://registry.hub.docker.com', DOCKERHUB_CREDENTIALS) {
-            dockerImage.push()
+            dockerImage1.push()
           }
         }
       }
