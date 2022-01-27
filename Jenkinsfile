@@ -29,6 +29,7 @@ pipeline {
         withCredentials([usernamePassword(credentialsId: 'dochub-cred', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
           sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
           sh 'docker push dockerImagename_py+":$BUILD_NUMBER"'
+        }
       }
     }
     stage('mysql-current-dir') {
@@ -40,20 +41,14 @@ pipeline {
     }
    stage('Build mysql image') {
      steps{
-       dir("${env.WORKSPACE}/mysql"){
-         script {
-           dockerImage1= docker.build dockerImagename_py + ":$BUILD_NUMBER"
-         }
-       }
+       sh 'docker build -t dockerImagename_mysql+":$BUILD_NUMBER"  "$WORKSPACE"/mysql'
      }
    }
    stage('Push Image-mysql') {
       steps{      
-        script {
-          docker.withRegistry( 'https://registry.hub.docker.com', DOCKERHUB_CREDENTIALS) {
-            dockerImage1.push()
-          }
-        }
+        withCredentials([usernamePassword(credentialsId: 'dochub-cred', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
+          sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
+          sh 'docker push dockerImagename_mysql+":$BUILD_NUMBER"'
       }
     }
     stage('Deploy App') {
